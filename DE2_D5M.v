@@ -339,6 +339,10 @@ wire sdram_pll_clk;
 
 wire [9:0] gDATA;
 wire gCCD_DVAL;
+wire [9:0] sDATA_R;
+wire [9:0] sDATA_G;
+wire [9:0] sDATA_B;
+wire seCCD_DVAL;
 wire [9:0] bDATA;
 wire bCCD_DVAL;
 reg [9:0] CCD_B;
@@ -536,6 +540,19 @@ RGB2GRAY         u5 (
                      .oDATA(gDATA),
                      .oDVAL(gCCD_DVAL),
                      );
+							
+RGBSELECT         u11 (
+                     .iCLK(CCD_PIXCLK),
+                     .iRST(DLY_RST_1),
+                     .iDVAL(Read),
+							.iRed(wVGA_R),
+							.iGreen(wVGA_G),
+							.iBlue(wVGA_B),
+                     .oDATA_R(sDATA_R),
+							.oDATA_G(sDATA_G),
+							.oDATA_B(sDATA_B),
+                     .oDVAL(seCCD_DVAL),
+                     );
 
  BinaryImage         u6 (
                      .iCLK(CCD_PIXCLK),
@@ -547,16 +564,19 @@ RGB2GRAY         u5 (
                     );
 						  
 wire [9:0] wDISP_R = 	
-						SW[2] ?	gDATA :    // Gray  	010
+						SW[3] ? sDATA_R :
+						SW[2] ? gDATA :    // Gray  	010
 						SW[1] ? bDATA :    // Binary	001
                               					 wVGA_R;    // Color		000
 										 
 wire [9:0] wDISP_G = 
+						SW[3] ? sDATA_G :
 						SW[2] ?	gDATA :    
 						SW[1] ?  bDATA :    
                             					                wVGA_G; 
 										 
 wire [9:0] wDISP_B = 
+						SW[3] ? sDATA_B :
 						SW[2] ?	gDATA :    
 						SW[1] ?	bDATA:   
                             					                wVGA_B;    
