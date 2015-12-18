@@ -9,3 +9,5 @@ based on altera de2 chip with d5m camera.
 * RGB components (Ju)
 * Mirror effect
 * Live threshold
+* Salt and Pepper
+* Picture with transparency layer over
