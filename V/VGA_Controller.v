@@ -38,6 +38,7 @@
 // --------------------------------------------------------------------
 //   Ver  :| Author            :| Mod. Date :| Changes Made:
 //   V1.0 :| Johnny FAN        :| 07/07/09  :| Initial Revision
+//   V2.0 :| Juju & Mimi		 :| 2016
 // --------------------------------------------------------------------
 
 module	VGA_Controller(	//	Host Side
@@ -53,6 +54,9 @@ module	VGA_Controller(	//	Host Side
 						oVGA_V_SYNC,
 						oVGA_SYNC,
 						oVGA_BLANK,
+						// added coord
+						oH_Cont,
+						oV_Cont,
 
 						//	Control Signal
 						iCLK,
@@ -74,6 +78,11 @@ output	reg			oVGA_H_SYNC;
 output	reg			oVGA_V_SYNC;
 output	reg			oVGA_SYNC;
 output	reg			oVGA_BLANK;
+
+// on met en sortie les valeurs de synchro
+output	reg	[12:0] oH_Cont;
+output	reg	[12:0] oV_Cont;
+
 
 wire		[9:0]	mVGA_R;
 wire		[9:0]	mVGA_G;
@@ -164,7 +173,11 @@ begin
 	begin
 		//	H_Sync Counter
 		if( H_Cont < H_SYNC_TOTAL )
-		H_Cont	<=	H_Cont+1;
+		begin
+			H_Cont	<=	H_Cont+1;
+			// on ajoute en sortie
+			oH_Cont	<= H_Cont;
+		end
 		else
 		H_Cont	<=	0;
 		//	H_Sync Generator
@@ -190,7 +203,11 @@ begin
 		begin
 			//	V_Sync Counter
 			if( V_Cont < V_SYNC_TOTAL )
-			V_Cont	<=	V_Cont+1;
+			begin
+				V_Cont	<=	V_Cont+1;
+				// on ajoute en sortie
+				oV_Cont <= V_Cont;
+			end
 			else
 			V_Cont	<=	0;
 			//	V_Sync Generator

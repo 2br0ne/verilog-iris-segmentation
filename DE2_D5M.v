@@ -333,6 +333,11 @@ wire			sCCD_DVAL;
 wire	[9:0]	VGA_R;   				//	VGA Red[9:0]
 wire	[9:0]	VGA_G;	 				//	VGA Green[9:0]
 wire	[9:0]	VGA_B;   				//	VGA Blue[9:0]
+
+//	pixels de synchro vga
+wire		[12:0]		p_H_Cont;
+wire		[12:0]		p_V_Cont;
+
 reg		[1:0]	rClk;
 wire			sdram_ctrl_clk;
 wire sdram_pll_clk;
@@ -343,6 +348,10 @@ wire [9:0] sDATA_R;
 wire [9:0] sDATA_G;
 wire [9:0] sDATA_B;
 wire seCCD_DVAL;
+wire [9:0] iDATA_R;
+wire [9:0] iDATA_G;
+wire [9:0] iDATA_B;
+wire iCCD_DVAL;
 wire [9:0] bDATA;
 wire bCCD_DVAL;
 reg [9:0] CCD_B;
@@ -402,6 +411,9 @@ VGA_Controller		u1	(	//	Host Side
 							.oVGA_V_SYNC(VGA_VS),
 							.oVGA_SYNC(VGA_SYNC),
 							.oVGA_BLANK(VGA_BLANK),
+							// coordonnees
+							.oH_Cont(p_H_Cont),
+							.oV_Cont(p_V_Cont),
 							//	Control Signal
 							.iCLK(VGA_CTRL_CLK),
 							.iRST_N(DLY_RST_2)
@@ -545,6 +557,8 @@ RGBSELECT         u11 (
                      .iCLK(CCD_PIXCLK),
                      .iRST(DLY_RST_1),
                      .iDVAL(Read),
+							.iSW4(SW[4]),
+							.iSW5(SW[5]),
 							.iRed(wVGA_R),
 							.iGreen(wVGA_G),
 							.iBlue(wVGA_B),
@@ -552,6 +566,21 @@ RGBSELECT         u11 (
 							.oDATA_G(sDATA_G),
 							.oDATA_B(sDATA_B),
                      .oDVAL(seCCD_DVAL),
+                     );
+							
+INVERTION         u12 (
+                     .iCLK(CCD_PIXCLK),
+                     .iRST(DLY_RST_1),
+                     .iDVAL(Read),
+							.iRed(wVGA_R),
+							.iGreen(wVGA_G),
+							.iBlue(wVGA_B),
+							.iH_Cont(p_H_Cont),
+							.iV_Cont(p_V_Cont),
+                     .oDATA_R(iDATA_R),
+							.oDATA_G(iDATA_G),
+							.oDATA_B(iDATA_B),
+                     .oDVAL(iCCD_DVAL),
                      );
 
  BinaryImage         u6 (
@@ -564,18 +593,21 @@ RGBSELECT         u11 (
                     );
 						  
 wire [9:0] wDISP_R = 	
+						SW[6] ? ~wVGA_R :
 						SW[3] ? sDATA_R :
 						SW[2] ? gDATA :    // Gray  	010
 						SW[1] ? bDATA :    // Binary	001
                               					 wVGA_R;    // Color		000
 										 
 wire [9:0] wDISP_G = 
+						SW[6] ? ~wVGA_G :
 						SW[3] ? sDATA_G :
 						SW[2] ?	gDATA :    
 						SW[1] ?  bDATA :    
                             					                wVGA_G; 
 										 
 wire [9:0] wDISP_B = 
+						SW[6] ? ~wVGA_B :
 						SW[3] ? sDATA_B :
 						SW[2] ?	gDATA :    
 						SW[1] ?	bDATA:   

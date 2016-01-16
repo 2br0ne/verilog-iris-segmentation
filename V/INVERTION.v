@@ -1,10 +1,10 @@
-module RGBSELECT(
+module INVERTION(
         oDVAL,
         oDATA_R,
 		  oDATA_G,
 		  oDATA_B,
-		  iSW4,
-		  iSW5,
+		  iH_Cont,
+		  iV_Cont,
         iRed,
         iGreen,
         iBlue,
@@ -12,6 +12,9 @@ module RGBSELECT(
         iRST,
         iDVAL,
 		);
+		
+`include "SEM_Param.h"
+		
 input			iDVAL;
 input			iCLK;
 input			iRST;
@@ -20,8 +23,9 @@ output reg[9:0]	oDATA_G;
 output reg[9:0]	oDATA_B;
 output reg		oDVAL;
 
-input iSW4;
-input iSW5;
+// coords
+input		[12:0]	iH_Cont;
+input		[12:0]	iV_Cont;
 
 input		[9:0]	iRed;
 input		[9:0]	iGreen;
@@ -38,10 +42,20 @@ begin
     end
   else
     begin
-	  oDVAL   <= iDVAL;
-	  oDATA_R   <= 0;
-	  oDATA_G   <= 0;
-	  oDATA_B   <= iBlue[9:0];
+	  if(iH_Cont > 10'b0011111111 && iH_Cont < 10'b1010000000)
+	  begin
+		oDVAL   <= iDVAL;
+	   oDATA_R   <= iRed[9:0];
+	   oDATA_G   <= iGreen[9:0];
+	   oDATA_B   <= iBlue[9:0];
+	  end
+	  else
+	  begin
+	  	oDVAL   <= iDVAL;
+	   oDATA_R   <= 0;
+	   oDATA_G   <= 0;
+	   oDATA_B   <= 0;
+	  end
     end
 end
 endmodule
